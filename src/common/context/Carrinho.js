@@ -6,17 +6,30 @@ CarrinhoContext.displayName = "Carrinho";
 export const CarrinhoProvider = ({ children }) => {
     const [carrinho, setCarrinho] = useState([]);
     const [quantidadeProdutos, setQuantidadeProdutos] = useState(0);
+    const [valorTotalCarrinho, setValorTotalCarrinho] = useState(0);
     return (
         <CarrinhoContext.Provider 
-        value={{ carrinho, setCarrinho, quantidadeProdutos, setQuantidadeProdutos }}>
+        value={{ 
+          carrinho, 
+          setCarrinho, 
+          quantidadeProdutos, 
+          setQuantidadeProdutos,
+          valorTotalCarrinho,
+          setValorTotalCarrinho }}>
             {children}
         </CarrinhoContext.Provider>
     )
 }
 
 export const useCarrinhoContext = () => {
-    const { carrinho, setCarrinho, quantidadeProdutos, setQuantidadeProdutos }
-     = useContext(CarrinhoContext);
+    const { 
+      carrinho, 
+      setCarrinho, 
+      quantidadeProdutos, 
+      setQuantidadeProdutos,
+      valorTotalCarrinho,
+      setValorTotalCarrinho 
+    } = useContext(CarrinhoContext);
 
     function mudarQuantidade(id, quantidade) {
       return carrinho.map(itemDoCarrinho => {
@@ -46,10 +59,16 @@ export const useCarrinhoContext = () => {
       }
 
       useEffect(() => {
-        const novaQuantidade = carrinho.reduce((contador, produto) =>
-         contador + produto.quantidade, 0);
-         setQuantidadeProdutos(novaQuantidade)
-      }, [carrinho, setQuantidadeProdutos]);
+        const {novoTotal, novaQuantidade} = carrinho.reduce((contador, produto) =>({
+          novaQuantidade: contador.novaQuantidade + produto.quantidade,
+          novoTotal: contador.novoTotal + (produto.valor * produto.quantidade)
+        }), {
+           novaQuantidade: 0,
+           novoTotal: 0
+         });
+         setQuantidadeProdutos(novaQuantidade);
+         setValorTotalCarrinho(novoTotal)
+      }, [carrinho, setQuantidadeProdutos, setValorTotalCarrinho]);
 
     return{
         carrinho, 
@@ -57,6 +76,7 @@ export const useCarrinhoContext = () => {
         adicionarProduto,
         removerProduto,
         quantidadeProdutos,
-        setQuantidadeProdutos
+        setQuantidadeProdutos,
+        valorTotalCarrinho
     }
 }
